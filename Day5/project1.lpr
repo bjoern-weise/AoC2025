@@ -98,19 +98,44 @@ begin
   end;
 end;
 
+procedure CombineRanges(var IngredDB: TIngredDB);
+var
+  i, j: Int64;
+  combined: boolean;
+begin
+
+  SortIngredDB(IngredDB);
+
+  combined:= true;
+  j:= 0;
+
+  while combined do begin
+    combined:= false;
+    for i:= j to High(IngredDB) - 1 do begin
+      if IngredDB[i].Max > IngredDB[i+1].Min then begin
+        if IngredDB[i+1].Max > IngredDB[i].Max then IngredDB[i].Max:= IngredDB[i+1].Max;
+        Delete(IngredDB, i+1, 1);
+        combined:= true;
+        j:= i;
+        break;
+      end;
+    end;
+  end;
+
+end;
+
 function SolveP1(var IngredDB: TIngredDB; var Ingreds: TIngreds): Int64;
 var
   i, j: Int64;
   r: TRange;
 begin
   Result:= 0;
-  for j:= 0 to Length(IngredDB) - 1 do begin
-    for i:= 0 to Length(Ingreds) - 1 do begin
-      if not Ingreds[i].isChecked then begin
-        if IngredDB[j].IsInRange(Ingreds[i].Value) then begin
-          Result:= Result + 1;
-          Ingreds[i].isChecked:= true;
-        end;
+
+  for i:= 0 to High(Ingreds) do begin
+    for j:= 0 to High(IngredDB) do begin
+      if IngredDB[j].IsInRange(Ingreds[i].Value) then begin
+        Result:= Result + 1;
+        Break;
       end;
     end;
   end;
@@ -123,14 +148,13 @@ var
 begin
   Result:= 0;
   actMax:= 0;
-  SortIngredDB(IngredDB);
 
   for i:= 0 to High(IngredDB) do begin
-    if IngredDB[i].Min > actMax then begin
+    if IngredDB[i].Min >= actMax + 1 then begin
       Result:= Result + (IngredDB[i].Max - IngredDB[i].Min) + 1;
       actMax:= IngredDB[i].Max;
     end else begin
-      if IngredDB[i].Max > actMax then begin
+      if IngredDB[i].Max >= actMax then begin
         Result:= Result + (IngredDB[i].Max - actMax);
         actMax:= IngredDB[i].Max;
       end;
@@ -164,6 +188,8 @@ begin
   profiler.Start;
 
   ReadInput(IngredDB, Ingreds, false);
+
+  CombineRanges(IngredDB);
   et_read:= profiler.Elapsed;
 
   i:= SolveP1(IngredDB, Ingreds);
