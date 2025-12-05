@@ -78,14 +78,15 @@ end;
 
 procedure SortIngredDB(var IngredDB: TIngredDB);
 var
-  i: Int64;
+  i, j: Int64;
   sorted: Boolean;
   tmp: TRange;
 begin
   sorted:= true;
+  j:= 2;
   while sorted do begin
     sorted:= false;
-    for i:= 0 to length(IngredDB) - 2 do begin
+    for i:= 0 to length(IngredDB) - j do begin
       if IngredDB[i].Min > IngredDB[i+1].Min then begin
         tmp:= IngredDB[i];
         IngredDB[i]:= IngredDB[i+1];
@@ -93,6 +94,7 @@ begin
         sorted:= true;
       end;
     end;
+    j:= j + 1;
   end;
 end;
 
@@ -123,7 +125,7 @@ begin
   actMax:= 0;
   SortIngredDB(IngredDB);
 
-  for i:= 0 to Length(IngredDB) - 1 do begin
+  for i:= 0 to High(IngredDB) do begin
     if IngredDB[i].Min > actMax then begin
       Result:= Result + (IngredDB[i].Max - IngredDB[i].Min) + 1;
       actMax:= IngredDB[i].Max;
@@ -176,8 +178,8 @@ begin
 
 
   WriteLn('Time Read: ' + FloatToStr(et_read * 1000));
-  WriteLn('Time Part1: ' + FloatToStr(et_P1 * 1000));
-  WriteLn('Time Part2: ' + FloatToStr(et_P2 * 1000));
+  WriteLn('Time Part1: ' + FloatToStr((et_P1 - et_read) * 1000));
+  WriteLn('Time Part2: ' + FloatToStr((et_P2 - et_P1) * 1000));
 
 
   FreeAndNil(profiler);
