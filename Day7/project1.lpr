@@ -114,6 +114,7 @@ begin
   data2:= ReadData(data, false);
   //data2:= copy(data);
 
+
   er:= prof.Elapsed;
 
   p1:= SolveP1(data);
